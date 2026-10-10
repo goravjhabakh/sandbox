@@ -22,7 +22,11 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  games: { id: string; title: string }[]
+}
+
+export function AppSidebar({ games }: AppSidebarProps) {
   const pathname = usePathname()
 
   return (
@@ -66,19 +70,43 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Recents</SidebarGroupLabel>
           <SidebarGroupContent>
-            <Empty className="border p-2 group-data-[collapsible=icon]:hidden">
-              <EmptyDescription className="text-xs">
-                Your games will live here.
-              </EmptyDescription>
-            </Empty>
-            <SidebarMenu className="hidden group-data-[collapsible=icon]:flex">
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <MessageSquareIcon />
-                  <span>Recents</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
+            {games.length === 0 ? (
+              <>
+                <Empty className="border p-2 group-data-[collapsible=icon]:hidden">
+                  <EmptyDescription className="text-xs">
+                    Your games will live here.
+                  </EmptyDescription>
+                </Empty>
+                <SidebarMenu className="group-data-[collapsible=icon]:flex">
+                  <SidebarMenuItem>
+                    <SidebarMenuButton>
+                      <MessageSquareIcon />
+                      <span className="sr-only">Recents</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </>
+            ) : (
+              <>
+                <SidebarMenu className="group-data-[collapsible=icon]:hidden">
+                  {games.map((game) => (
+                    <SidebarMenuItem key={game.id}>
+                      <SidebarMenuButton>
+                        <span className="truncate">{game.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+                <SidebarMenu className="hidden group-data-[collapsible=icon]:flex">
+                  <SidebarMenuItem>
+                    <SidebarMenuButton>
+                      <MessageSquareIcon />
+                      <span className="sr-only">Recents</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

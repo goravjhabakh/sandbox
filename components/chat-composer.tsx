@@ -1,3 +1,7 @@
+"use client"
+
+import { useState, useTransition } from "react"
+
 import {
   ArrowUpIcon,
   BrushIcon,
@@ -24,6 +28,7 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "@/components/ui/input-group"
+import { createGame } from "@/lib/games/actions"
 
 const models = ["Kimi K3", "Claude Opus 5.5", "GPT-6", "Gemini 3 Pro"]
 
@@ -35,13 +40,35 @@ const suggestions = [
   { label: "Fight-first shooter", icon: CrosshairIcon },
   { label: "Jungle expedition drive", icon: CarIcon },
   { label: "Sunny kingdom platformer", icon: Gamepad2Icon },
-];
+]
 
 export function ChatComposer() {
+  const [title, setTitle] = useState("")
+  const [isPending, startTransition] = useTransition()
+
+  function submitGame() {
+    if (!title.trim()) {
+      return
+    }
+
+    startTransition(async () => {
+      await createGame(title)
+      setTitle("")
+    })
+  }
+
   return (
     <div className="flex w-full flex-col gap-6">
       <InputGroup className="bg-popover">
         <InputGroupTextarea
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault()
+              submitGame()
+            }
+          }}
           placeholder="Describe the game you want to build..."
           rows={1}
           className="field-sizing-content max-h-48 min-h-10"
@@ -63,7 +90,13 @@ export function ChatComposer() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button size="icon-lg" className="ml-auto rounded-full">
+          <Button
+            type="button"
+            size="icon-lg"
+            className="ml-auto rounded-full"
+            disabled={!title.trim() || isPending}
+            onClick={submitGame}
+          >
             <ArrowUpIcon />
           </Button>
         </InputGroupAddon>
@@ -73,9 +106,11 @@ export function ChatComposer() {
         {suggestions.map((suggestion) => (
           <Button
             key={suggestion.label}
+            type="button"
             variant="outline"
             size="sm"
             className="rounded-full font-normal text-muted-foreground"
+            onClick={() => setTitle(suggestion.label)}
           >
             <suggestion.icon />
             {suggestion.label}
