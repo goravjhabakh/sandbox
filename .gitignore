@@ -37,3 +37,7 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Agent Skills and MCPs
+.playwright-mcp
+.agents/skills
